@@ -1,8 +1,8 @@
 from src.database.database import Base
-from sqlalchemy import Column, Integer, String, TIMESTAMP, text, ForeignKey
+from sqlalchemy import Column, Integer, String, TIMESTAMP, text, ForeignKey,UUID
 
 
 class Model(Base):
     __tablename__='models'
-    id = Column(String, primary_key=True, nullable=False)
+    id = Column(UUID, primary_key=True, nullable=False)
     name = Column(String, nullable=False)

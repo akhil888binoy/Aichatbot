@@ -24,6 +24,18 @@ def create_conversation(session: Session):
     session.refresh(conversation)
     return conversation
 
+def create_model(session : Session , model_name : str):
+    id = uuid4()
+    model = Model(
+        id = id ,
+        name = model_name
+    )
+    session.add(model)
+    session.commit()
+    session.refresh(model)
+    return model
+
+
 def load_models(session : Session):
     stmt = session.query(Model)
     models = session.scalars(stmt).all()
@@ -34,7 +46,6 @@ def load_conversation(session:Session):
     stmt = session.query(Conversation)
     conversations = session.scalars(stmt).all()
     return [ConversationRespone.model_validate(conversation) for conversation in conversations]
-
 
 
 def load_messages(session: Session , conversation_id : str):
@@ -63,11 +74,16 @@ def create_message(session : Session , chat_request : ChatRequest ):
     return message
 
 
-
 def chat_model( session : Session , chat_request : ChatRequest ):
-    message = create_message(session=session , chat_request=chat_request)
+    create_message(session=session , chat_request=chat_request)
     conversation = load_messages(session=session , conversation_id=chat_request.conversation_id)
     response = send_message(conversation, chat_request.model)
-    print(f"Response{response}")
-    return response
+    chatrequest = ChatRequest(
+        conversation_id= chat_request.conversation_id,
+        role='assistant',
+        content = response,
+        model = chat_request.model
+    )
 
+    message = create_message(session= session, chat_request=chatrequest)
+    return message
